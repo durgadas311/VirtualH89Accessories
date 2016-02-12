@@ -1,0 +1,17 @@
+SOURCES = $(wildcard *.cpp)
+
+OBJECTS = $(subst .cpp,.o,$(SOURCES))
+
+all: v89
+
+v89: $(OBJECTS)
+	$(CXX) -o $@ $(OBJECTS) -lpthread -lGL -lglut
+
+CXXFLAGS = -g -std=c++11
+
+clean:
+	rm -f *.o *.orig
+
+astyle:
+	astyle --formatted --options=astyle.opts *.cpp *.h
+	rm -f *.orig
