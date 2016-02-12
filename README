@@ -1,0 +1,125 @@
+Files:
+
+2732_MMS84A_MagnoliaMMS.BIN
+	The Magnolia Microsystems version "A" of the 444-84 H89 System ROM.
+	Patched to correct a problem during transfer (missing JMP opcode at 0000).
+
+H19.jar
+	A java-based H19 emulator. Use "loopback" option to run offline (keyboard
+	looped-back to screen). Without loopback, will display characters received
+	on stdin and send keystrokes to stdout.
+
+H89.jar
+	A java-based H89-enabled H19 emulator. Provides a menu feamework and
+	invokes the VirtualH89 emulator as a back-end process.
+
+blank5ddds.mmsdisk
+	A 5" DD DS blank diskette image suitable for use with the MMS77316
+	controller on the VirtualH89 emulator.
+
+invaders.mmsdisk
+	A 5" DD DS diskette containing a popular game for the H89.
+
+mmscpm64kds.mmsdisk
+	A 5" DD DS diskette pre-configured for 64K CP/M and 8 DS ST drives on
+	the MMS77316 controller.
+
+mms-cpm-distro.mmsdisk
+	The 5" DD SS MMS CP/M 2.24 distrobution diskette. Assumes all drives
+	are SS ST (See MMS CP/M manual for instructions).
+
+v89rc.example
+	An example config/properties file for H19.jar, H89.jar, and the
+	VirtualH89 emulator.
+
+Makefile.VirtualH89
+	A sample Makefile for linux/Unix systems to build the VirtualH89 emulator.
+
+Environment Variables:
+
+	V89_CONFIG
+		The config/properties file to use.
+
+Properties Recognized:
+
+VirtualH89:
+	sw501
+		The binary code to use for the SW501 settings. MSB=sw8.
+		e.g. sw501 = 00000000
+
+	slot_p504, slot_p505, slot_p506
+		Designate controller card(s) installed. Currently only recognizes
+		"MMS77316". Slot assignment is currentl arbitrary.
+		e.g. slot_p504 = MMS77316
+
+	monitor_rom
+		The image to use for the monitor ROM. Without this, the emulator
+		chooses a built-in ROM images based on compile options.
+		e.g. monitor_rom = 2732_MMS84A_MagnoliaMMS.BIN
+
+	mms77316_drive[1-8]
+		The type of disk drive connected to the MMS77316 controller.
+		Drives 1-4 are 8" only, 5-8 are 5.25" only. Recognized values:
+		FDD_5_25_SS_ST, FDD_5_25_SS_DT, FDD_5_25_DS_ST, FDD_5_25_DS_DT,
+		FDD_8_SS, FDD_8_DS.
+		e.g. mms77316_drive5 = FDD_5_25_DS_ST
+
+	mms77316_disk[1-8]
+		The initial disk image inserted into the associated disk drive.
+		The H89.jar front-end allows changing diskettes in the "Disks" menu.
+		Currently, all require the "rw" option. Additional options are aimed
+		at helping the disk image software recognize the format, and include:
+		5, 8, dd, sd, ds, ss, dt, st. See section on "Diskette Images".
+		e.g. mms77316_disk5 = mmscpm64kds.mmsdisk rw
+
+	z17_disk[1-3], z37_disk[1-4], z47_disk[1-2]
+		The initial disk image inserted into drives on the respective controllers.
+		Support is pending.
+
+H89.jar:
+	h89_nameplate
+		Text to display on the housing nameplate. If no option is given,
+		then the GUI shows only the CRT screen and no additional decoration.
+		An empty property defaults to "Heathkit H89".
+
+	h89_cmd_line
+		The commandline string to use to invoke the H89 back-end.
+		Use with caution. Default is "./v89 -q -g proxy". The main use
+		would be to change the name and/or path to the emulator.
+		For the VirtualH89 emulator, the options shown are absolute minimum.
+		e.g. h89_cmd_line = ./v89 -q -g proxy
+
+H19.jar:
+	h19_font
+		The font to use. The builtin font H19a.ttf is the default.
+		e.g. h19_font = H19a.ttf
+
+	h19_font_size
+		The font size to use. For default font, it seems only multiples
+		of 10 render cleanly. 20 or 30 seem practical.
+		e.g. h19_font_size = 20
+
+	h19_font_color
+		The color of the font (CRT phosphor). Expressed in 24-bit RGB hexadecimal.
+		e.g. h19_font_color = 00ff00
+
+	h19_beep
+		The audio file to use for the terminal beep (response to ASCII BEL code).
+		Default is h19beep.wav which is a 500mS 1024Hz beep. Others builtin are:
+			h19beep.wav	500mS 1024Hz
+			h19beep250.wav	250mS 1024Hz
+			h19beep125.wav	125mS 1024Hz
+			h19click.wav	 62mS 1024Hz
+			h19click031.wav	 31mS 1024Hz
+			h19click015.wav	 15mS 1024Hz
+			h19click007.wav	  7mS 1024Hz
+		e.g. h19_beep = h19beep250.wav
+
+	h19_beep_volume
+		Volume setting to use when beeping, expressed as percentage of max.
+		e.g. h19_beep_volume = 30
+
+	h19_nameplate
+		Same as h89_nameplate.
+
+
