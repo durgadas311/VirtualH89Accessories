@@ -41,6 +41,14 @@ v89rc.example
 Makefile.VirtualH89
 	A sample Makefile for linux/Unix systems to build the VirtualH89 emulator.
 
+format.c
+	A simple program to create diskette images. Basic syntax:
+
+		format <new-file> [format-specifiers]
+
+	Where format specifiers are things like "MMS", "Z37", "DD", "DS", "5",...
+	Invoke without any arguments to get help. Will not overwrite existing file.
+
 Environment Variables:
 
 	V89_CONFIG
