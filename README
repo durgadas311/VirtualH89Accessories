@@ -4,6 +4,12 @@ Files:
 	The Magnolia Microsystems version "A" of the 444-84 H89 System ROM.
 	Patched to correct a problem during transfer (missing JMP opcode at 0000).
 
+2732a_444_84b_mms.bin
+	The Magnolia Microsystems version "B" of the 444-84 H89 System ROM.
+
+2732a_444_84c_ide_mms_v1.bin
+	MMS-84B monitor ROM image, modified by Norberto Collado.
+
 H19.jar
 	A java-based H19 emulator. Use "loopback" option to run offline (keyboard
 	looped-back to screen). Without loopback, will display characters received
@@ -78,9 +84,9 @@ VirtualH89:
 
 H89.jar:
 	h89_nameplate
-		Text to display on the housing nameplate. If no option is given,
+		Text to display on the housing nameplate. If value is "none",
 		then the GUI shows only the CRT screen and no additional decoration.
-		An empty property defaults to "Heathkit H89".
+		An empty or missing property defaults to "Heathkit H89".
 
 	h89_cmd_line
 		The commandline string to use to invoke the H89 back-end.
