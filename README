@@ -34,9 +34,21 @@ mms-cpm-distro.mmsdisk
 	The 5" DD SS MMS CP/M 2.24 distrobution diskette. Assumes all drives
 	are SS ST (See MMS CP/M manual for instructions).
 
+sasi-config.mmsdisk
+	5" MMS DD DS disk with files to help configure SASI disks and CP/M,
+	for the MMS 77320 SASI adapter.
+
+MMS77320-0
+	A bootable SASI disk, goes with v89rc.m320 once it is edited
+	for the directory path containing this file.
+
 v89rc.example
 	An example config/properties file for H19.jar, H89.jar, and the
 	VirtualH89 emulator.
+
+v89rc.m320
+	An example config/properties file for H89.jar using both MMS77316
+	floppy controller and MMS77230 SASI controller.
 
 Makefile.VirtualH89
 	A sample Makefile for linux/Unix systems to build the VirtualH89 emulator.
@@ -48,6 +60,14 @@ format.c
 
 	Where format specifiers are things like "MMS", "Z37", "DD", "DS", "5",...
 	Invoke without any arguments to get help. Will not overwrite existing file.
+
+fmtsasi.c
+	A simple program for creatinmg SASI disk images, includes setup of
+	partition table and pre-boot loader (eliminates need for initsasi steps).
+	And image created here is ready for SYSGEN from a floppy system,
+	once a proper CP/M image is created.
+
+==== Configuration of the VirtualH89 program ====
 
 Environment Variables:
 
