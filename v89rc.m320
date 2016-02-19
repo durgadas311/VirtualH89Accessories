@@ -14,6 +14,7 @@ slot_p505=MMS77320
 mms77320_port = jp1b
 mms77320_intr = jp2b
 mms77320_dipsw = 00000000
-mms77320_dir = /home/path/to/sasi/images
+# mms77320_dir should contain files like "MMS77320-0"
+mms77320_dir = /path/to/sasi/images
 mms77320_drive0 = XEBEC_ST506
 
