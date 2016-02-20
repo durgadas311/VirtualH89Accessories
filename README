@@ -38,6 +38,10 @@ sasi-config.mmsdisk
 	5" MMS DD DS disk with files to help configure SASI disks and CP/M,
 	for the MMS 77320 SASI adapter.
 
+cpnet-dist.mmsdisk
+	5" MMS DD DS disk with CP/Net files and SNIOS for HostFileBdos device.
+	See v89rc.cpnet.
+
 MMS77320-0
 	A bootable SASI disk, goes with v89rc.m320 once it is edited
 	for the directory path containing this file.
@@ -49,6 +53,10 @@ v89rc.example
 v89rc.m320
 	An example config/properties file for H89.jar using both MMS77316
 	floppy controller and MMS77230 SASI controller.
+
+v89rc.cpnet
+	An example config/properties file for H89.jar using the CP/Net-enabled
+	device HostFileBdos.
 
 Makefile.VirtualH89
 	A sample Makefile for linux/Unix systems to build the VirtualH89 emulator.

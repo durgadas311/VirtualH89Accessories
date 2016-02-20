@@ -1,0 +1,13 @@
+monitor_rom = 2732a_444_84b_mms.bin
+sw501 = 00000010
+slot_p504=MMS77316
+mms77316_drive5 = FDD_5_25_DS_ST
+mms77316_drive6 = FDD_5_25_DS_ST
+mms77316_drive7 = FDD_5_25_DS_ST
+mms77316_disk5 = mmscpm64kds.mmsdisk rw
+mms77316_disk6 = cpnet-dist.mmsdisk rw
+h19_font_size=20
+h19_beep_volume = 20
+
+hostfilebdos_port = 0x18
+hostfilebdos_root_dir = /path/to/dir/for/HostFileBdos/files
