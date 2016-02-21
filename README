@@ -73,7 +73,9 @@ fmtsasi.c
 	A simple program for creatinmg SASI disk images, includes setup of
 	partition table and pre-boot loader (eliminates need for initsasi steps).
 	And image created here is ready for SYSGEN from a floppy system,
-	once a proper CP/M image is created.
+	once a proper CP/M image is created. Also creates "diskdefs" that
+	can be used with cpmtools to examine the partitions and copy files
+	in and out.
 
 ==== Configuration of the VirtualH89 program ====
 

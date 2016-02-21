@@ -145,7 +145,12 @@ struct geometry {
 	float factor; // padding for directory
 };
 
-void setcpmdpb(char *buf, int psize, struct geometry *geom) {
+struct diskdef {
+	int blocksize;
+	int maxdir;
+};
+
+void setcpmdpb(char *buf, int psize, struct geometry *geom, struct diskdef *dd) {
 	int cpmsecs = (psize * geom->ssz);
 	cpmsecs /= 128;
 	cpmsecs -= geom->resv_trks * 64;
@@ -198,6 +203,8 @@ void setcpmdpb(char *buf, int psize, struct geometry *geom) {
 			cpmsecs, siz,
 			64, bsh, bsm, exm, dsm, drm,
 			(alv0 >> 8) & 0x0ff, alv0 & 0x0ff, 0, geom->resv_trks);
+	dd->blocksize = (1 << bsh) * 128;
+	dd->maxdir = drm;
 	setdw(buf + 0, 64);  // SPT - constant, regardless of hardware.
 	setdb(buf + 2, bsh);
 	setdb(buf + 3, bsm);
@@ -390,18 +397,16 @@ int main(int argc, char **argv) {
 		perror(name);
 		exit(1);
 	}
+	char *basename = strrchr(name, '/');
+	if (basename == NULL) basename = name;
+	else ++basename;
 	buf = malloc(geom.ssz);
 	if (buf == NULL) {
 		perror("malloc");
 		exit(1);
 	}
-	if (repair) {
-		lseek(fd, (off_t)geom.ssz, SEEK_SET);
-	} else {
-		snprintf(buf, geom.ssz, "%dc%dh%dz%dp%dl\n",
-			geom.cyls, geom.hds, geom.ssz, geom.spt, geom.lat);
-		write(fd, buf, geom.ssz);
-	}
+
+	FILE *ddfp = fopen("diskdefs", "a");
 
 	int adr = 3;
 	memset(idat + adr, 0, 256 - adr);
@@ -425,9 +430,23 @@ int main(int argc, char **argv) {
 		adr += 3;
 	}
 	// +47 bytes. Now CP/M DPBs for each partition...  21 bytes each
+	struct diskdef dskdef;
+	t = geom.resv_secs;
 	for (x = 0; x < nparts; ++x) {
-		setcpmdpb(idat + adr, parts[x], &geom);
+		setcpmdpb(idat + adr, parts[x], &geom, &dskdef);
 		adr += 21;
+		if (ddfp != NULL) {
+			int lspt = 8192 / geom.ssz;
+			fprintf(ddfp, "diskdef %s.%d.%d\n"
+				"  seclen %d\n  tracks %d\n  sectrk %d\n"
+				"  blocksize %d\n  maxdir %d\n  skew 0\n"
+				"  boottrk 2\n  offset %d\n  os 2.2\nend\n",
+				basename, nparts, x,
+				geom.ssz, parts[x] / lspt, lspt,
+				dskdef.blocksize, dskdef.maxdir,
+				t * 128);
+		}
+		t += parts[x] * sxf;
 	}
 	write(fd, idat, sizeof(idat));
 
@@ -436,6 +455,10 @@ int main(int argc, char **argv) {
 		for (x = sizeof(idat) / geom.ssz; x < geom.capacity; ++x) {
 			write(fd, buf, geom.ssz);
 		}
+		memset(buf, 0, geom.ssz);
+		sprintf(buf, "%dc%dh%dz%dp%dl\n",
+			geom.cyls, geom.hds, geom.ssz, geom.spt, geom.lat);
+		write(fd, buf, 128);
 	}
 
 	close(fd);
