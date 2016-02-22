@@ -1,0 +1,81 @@
+Files:
+
+sasi-config.mmsdisk
+	5" MMS DD DS disk with files to help configure SASI disks and CP/M,
+	for the MMS 77320 SASI adapter.
+
+MMS77320-0
+	A bootable SASI disk, goes with v89rc.m320 once it is edited
+	for the directory path containing this file.
+
+v89rc.m320
+	An example config/properties file for H89.jar using both MMS77316
+	floppy controller and MMS77230 SASI controller.
+
+fmtsasi.c
+	A simple program for creatinmg SASI disk images, includes setup of
+	partition table and pre-boot loader (eliminates need for initsasi steps).
+	And image created here is ready for SYSGEN from a floppy system,
+	once a proper CP/M image is created. Also creates "diskdefs" that
+	can be used with cpmtools to examine the partitions and copy files
+	in and out.
+
+==== Configuration of the VirtualH89 program ====
+
+mms77320_port
+	Port jumper settings, "jp1a" == 0x78, "jp1b" == 0x7C.
+
+mms77320_intr
+	Interrupt jumper settings, "jp2a" == INT3, "jp2b" == INT4, "jp2c" == INT5.
+	Note, interrupts are not typically used for this adapter.
+
+mms77320_dipsw
+	Configuration settings for the on-board dipswitch. There are no known
+	users of these settings.
+	
+mms77320_dir
+	Root directory to use for SASI disk images. All drives are treated as
+	non-removable and so the user is not given the run-time option to
+	mount or unmount images. In fact, image file names are fixed at
+	"MMS77320-#" (where "#" is the drive/controller number, 0-7).
+	Only one drive per controller is allowed. Management of SASI
+	images is done offline, by copying files into/outof the root dir
+	and/or managing symlinks in the root dir.
+
+mms77320_drive#
+	Specification of an attached SASI controler with drive. Syntax:
+		<drive-type> ["ss"]
+	For XEBEC controllers, the option "ss" selects 512-byte sectors,
+	otherwise 256-byte sectors are used.
+
+	Drive type dictates media size and geometry. Currently supported
+	controller/media combinations are:
+
+		XEBEC_ST506,    //  5.3MB
+		XEBEC_ST412,    // 10.6MB
+		XEBEC_CM5206,   //  4.4MB
+		XEBEC_CM5410,   //  8.9MB
+		XEBEC_CM5616,   // 13.3MB
+		XEBEC_RO201,    //  5.5MB
+		XEBEC_RO202,    // 11.1MB
+		XEBEC_RO203,    // 16.7MB
+		XEBEC_RO204,    // 22.3MB
+
+	If the media file does not exist in the root-dir, it is created.
+	However, it is not formatted or initialized with partition info.
+	(INITSASI has not been tested) The simplest way to create a viable
+	SASI image is using fmtsasi.c.
+
+SASI Images:
+
+	SASI images for the MM77320 controller are simple sector images with a
+	disk geometry header appended. The header format is a string terminated
+	by newline in a 128-byte block (zero padded). Header fields consist of
+	a number followed by a lower-case letter. All fields must be present.
+	Fields are:
+
+	Nz      sector size. Typically 512 or 256.
+	Np      sectors/track (track = one head in one cylinder)
+	Nh      heads (similar to sides on floppy)
+	Nc      cylinders (similar to tracks on floppy)
+	Nl      latency distribution (not currently used)

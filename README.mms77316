@@ -1,0 +1,53 @@
+Files:
+
+blank5ddds.mmsdisk
+	A 5" DD DS blank diskette image suitable for use with the MMS77316
+	controller on the VirtualH89 emulator.
+
+invaders.mmsdisk
+	A 5" DD DS diskette containing a popular game for the H89.
+
+mmscpm64kds.mmsdisk
+	A 5" DD DS diskette pre-configured for 64K CP/M and 8 DS ST drives on
+	the MMS77316 controller.
+
+mms-cpm-distro.mmsdisk
+	The 5" DD SS MMS CP/M 2.24 distrobution diskette. Assumes all drives
+	are SS ST (See MMS CP/M manual for instructions).
+
+format.c
+	A simple program to create diskette images. Basic syntax:
+
+		format <new-file> [format-specifiers]
+
+	Where format specifiers are things like "MMS", "Z37", "DD", "DS", "5",...
+	Invoke without any arguments to get help. Will not overwrite existing file.
+
+==== Configuration of the VirtualH89 program ====
+
+mms77316_drive[1-8]
+	The type of disk drive connected to the MMS77316 controller.
+	Drives 1-4 are 8" only, 5-8 are 5.25" only. Recognized values:
+	FDD_5_25_SS_ST, FDD_5_25_SS_DT, FDD_5_25_DS_ST, FDD_5_25_DS_DT,
+	FDD_8_SS, FDD_8_DS.
+	e.g. mms77316_drive5 = FDD_5_25_DS_ST
+
+mms77316_disk[1-8]
+	The initial disk image inserted into the associated disk drive.
+	The H89.jar front-end allows changing diskettes in the "Disks" menu.
+	Currently, all require the "rw" option. Additional options are aimed
+	at helping the disk image software recognize the format, and include:
+	5, 8, dd, sd, ds, ss, dt, st. See section on "Diskette Images".
+	e.g. mms77316_disk5 = mmscpm64kds.mmsdisk rw
+
+Diskette Images:
+
+	Diskette images for the MM77316 controller are "raw" images, where each
+	track contains formatting bytes as well as sector data. It is similar, but
+	not identical, to what is obtained using the WD1797 "read track" command.
+	Unlike the results of "read track", the images have precise and consistent
+	formatting of the tracks - i.e. the sector data begins in the exact same
+	relative position on all tracks, in all sectors.
+
+TODO: convert a "format" utility to java to use for creating blank diskette images.
+Can also be used to "wrap" simple sector images in the track formatting.
