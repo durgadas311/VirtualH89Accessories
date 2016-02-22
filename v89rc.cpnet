@@ -9,5 +9,8 @@ mms77316_disk6 = cpnet-dist.mmsdisk rw
 h19_font_size=20
 h19_beep_volume = 20
 
-hostfilebdos_port = 0x18
-hostfilebdos_root_dir = /path/to/dir/for/HostFileBdos/files
+cpnetdevice_port = 0x18
+cpnetdevice_clientid = 0xfe
+cpnetdevice_server00 = HostFileBdos /path/to/dir/for/HostFileBdos/files
+#cpnetdevice_server01 = Socket 192.169.3.11 # not yet implemented
+
