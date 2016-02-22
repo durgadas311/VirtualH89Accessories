@@ -1,0 +1,126 @@
+SW501:
+    0 000 00 00 (note: do not use spaces in "sw501" property)
+    |  |   |  |
+    |  |   | 00 Port 7C = H88-1 (Z17)
+    |  |   | 01         = Z89-47
+    |  |   | 10         = Z89-67 or MMS 77320
+    |  |   | 11         = MMS 77422
+    |  |  00 Port 78 = Z89-37
+    |  |  01         = Z89-47
+    |  |  10         = Z89-67 or MMS 77320
+    |  |  11         = MMS 77422
+    | 000 Def boot = MMS 77326 DD 5"
+    | 001          = MMS 77326 DD 8"
+    | 010          = Disk Dev at 7C
+    | 011          = Disk Dev at 78
+    | 100          = reserved
+    | 101          = reserved
+    | 110          = MMS 77422
+    | 111          = Use MMS I/O ext dipsw
+    0 Auto Boot = disabled
+    1           = enabled
+
+MMS I/O EXT DIPSW:
+    000 000 xx (note: do not use spaces or "xx" in property)
+     |   |
+     |  000 Boot LUN0
+     |  001      LUN1
+     |  010      LUN2
+     |  011      LUN3
+     |  100      LUN4
+     |  101      LUN5
+     |  110      LUN6
+     |  111      LUN7
+    000 Def boot = MMS 77314 Corvus/IMI
+    001          = MMS 77314 Remex 8" floppy
+    010          = reserved
+    011          = MMS 77317 XCOMP
+    100          = reserved
+    101          = reserved
+    110          = reserved
+    111          = reserved
+
+Boot command modifiers:
+
+Letter + (optional) Unit number (0..n)
+  A   = Default from SW501 (etc)
+  B   = Z17
+  C   = Z89-37
+  D   = Z89-47
+  E   = Z89-67
+  F   = reserved
+  G   = MMS 77314 Remex
+  H   = MMS 77314 Corvus
+  I   = MMS 77316 8" Floppy
+  J   = MMS 77316 5" Floppy
+  K   = MMS 77317 XCOMP
+  L   = reserved
+  M   = MMS 77318 RAM-disk *
+  N   = MMS 77422 (Network)
+  O   = MMS 77320 SASI Ctrl 0 **
+  P   = MMS 77320 SASI Ctrl 1 **
+  Q   = MMS 77320 SASI Ctrl 2 **
+  R   = MMS 77320 SASI Ctrl 3 **
+  S   = MMS 77320 SASI Ctrl 4 **
+  T   = MMS 77320 SASI Ctrl 5 **
+  U   = MMS 77320 SASI Ctrl 6 **
+  V   = MMS 77320 SASI Ctrl 7 **
+ W-Z  = reserved
+
+Physical drive number
+   0..2    = Z17
+  46..49   = Z89-37
+   3..4    = Z89-67
+   5..8    = MMS 77314 Remex
+  15..23   = MMS 77314 Corvus
+  29..32   = MMS 77316 8" Floppy
+  33..36   = MMS 77316 5" Floppy
+    37     = MMS 77317 XCOMP
+    40     = MMS 77318 RAM-disk *
+
+* RAM-disk must have been SYSGENed since last power-up in order to boot it.
+
+** SASI targets include controller number, logical unit number, and partition number.
+   e.g. Boot OO-1:2 boots from Controller 0, LUN 1, Partition 2.
+
+MMS I/O Decoder PROM (444-61C):
+
+  00..37    = Not decoded
+  38..39 ** = MMS 77316 set 1
+    3A      = Not decoded
+  3B..3F ** = MMS 77316 set 2 (WD1797)
+  40..47 *  = MMS Internal test fixtures
+  48..4F *  = MMS 77317 XCOMP
+  50..56 *  = MMS 77315 CAMEO
+    57   *  = Unused
+  58..59 *  = MMS 77314 Corvus
+  5A..5B *  = MMS 77314 REMEX
+    5C   *  = MMS I/O ext dipsw
+  5D..5F *  = Unused
+  60..77    = Not decoded
+  78..7B    = Zenith Disk I/O
+  7C..7F    = Zenith Disk I/O
+  80..CF    = Not decoded (HDOS reserved)
+  D0..D7    = Aux serial port
+  D8..DF    = Modem serial port
+  E0..E7    = Printer serial port
+  E8..EF    = Console serial port
+  F0..F1    = NMI (H8 front-panel emulation)
+    F2      = GPIO
+  F8..F9    = Not decoded
+  FA..FB    = NMI
+  FC..FF    = Not decoded
+
+* This range is possible by encoding Printer, Modem, and Aux chip-select lines.
+  Standard Heath/Zenith serial cards must not be used, if programs will be using
+  the extended I/O range. MMS 77314, 77315, 77317, and 77320 cards all include
+  replacement serial ports that are not affected by the extended I/O range.
+
+** Requires 444-61C PROM which combines GPIO with range 38..3F. Do not attempt
+   to access this range without the MMS 77316 installed.
+
+    77314:   444-61A,B,C
+    77315:   444-61A,B,C
+    77316:   444-61C
+    77317:   444-61A,B,C
+    77320:   444-61A,B,C
