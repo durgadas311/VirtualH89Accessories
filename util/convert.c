@@ -72,8 +72,16 @@ int check_format(unsigned char *buf, int len) {
 	switch(trks) {
 	case 160:
 		num_sides = 2;
+		num_trks = 80;
+		media_sz = 5;
+		density = (track_len > 4000);
+		break;
 	case 80:
+		media_sz = 5;
+		density = (track_len > 4000);
+		break;
 	case 40:
+		num_trks = 40;
 		media_sz = 5;
 		density = (track_len > 4000);
 		break;
