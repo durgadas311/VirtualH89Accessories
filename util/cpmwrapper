@@ -1,0 +1,37 @@
+#!/bin/bash
+
+pgm=${0##*/}
+if [[ ${pgm} == "cpmwrapper" ]]; then
+	pgm=${1}
+	shift 1
+else
+	pgm="cpm${pgm#w}"
+fi
+
+opts=()
+while getopts "T:f:h?ptcidDFlAn" op; do
+	case ${op} in
+	T) opts[${#opts[*]}]="-T"; opts[${#opts[*]}]=${OPTARG};;
+	f) opts[${#opts[*]}]="-f"; opts[${#opts[*]}]=${OPTARG};;
+	*) opts[${#opts[*]}]="-${op}";;
+	esac
+done
+shift $((OPTIND-1))
+
+unset img
+if [[ ${#} -gt 0 ]]; then
+	img=${1}
+	shift 1
+	part=0
+	if [[ ${img} == *":"+([0-9]) ]]; then
+		part=${img##*:}
+		img=${img%:*}
+	fi
+	CPMTOOLSFMT=$(getdiskdef ${img} ${part})
+	if [[ -n ${CPMTOOLSFMT} ]]; then
+		export CPMTOOLSFMT
+	fi
+fi
+
+#echo ${pgm} ${opts[*]} ${img} "${@}"
+${pgm} ${opts[*]} ${img} "${@}"
