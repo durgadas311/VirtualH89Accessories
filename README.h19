@@ -1,0 +1,48 @@
+The H19 keys are mapped to a modern "PC" keyboard as follows:
+
+Keyboard	H19 equivalent
+--------	------------------
+Enter		RETURN, ^M (CR)
+Ctrl-J		LINE FEED, ^J (LF)
+Backspace	BACKSPACE, ^H (BS)
+Shift-Backspace	DELETE (0x7f - DEL)
+F1		F1
+F2		F2
+F3		F3
+F4		F4
+F5		F5
+F6		BLUE
+F7		RED
+F8		GRAY
+Shift-F9	SHIFT-RESET
+UP		Keypad UP
+DOWN		Keypad DOWN
+LEFT		Keypad LEFT
+RIGHT		Keypad RIGHT
+Insert		Keypad IC
+Shift-Insert	Keypad IL
+Delete		Keypad DC
+Shift-Delete	Keypad DL
+Home		Keypad HOME
+
+Magic Wand key mappings
+
+H19		MW Function
+---------	---------------------------------
+F1		Line Scroll Back
+F2		Line Scroll Forward
+F3		Page Back
+F4		Page Forward
+F5		Set FORM FEED
+BLUE		Start search
+RED		Repeat search
+GRAY		Set block marker
+IC		Char insert mode (toggle)
+IL		Open text insert (toggle)
+DC		char delete
+DL		Delete rest of line and join next
+BACKSPACE	Destructive backspace
+DELETE		Word delete
+CTL-T		Top of text (file)
+CTL-B		Bottom of text (file)
+
