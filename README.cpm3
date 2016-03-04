@@ -1,0 +1,16 @@
+Files:
+
+mms77318.logdisk
+	5" MMS DD SS disk with MMS files to support MMS 77318 128K add-on RAM.
+	Not bootable.
+	See also v89rc.cpm3.
+
+MMS77320-0.cpm3
+	Bootable SASI XEBEC_CM5616 drive with 3 partitions, CP/M-Plus installed
+	on first partition. Not a clean distro image: contains remnants of building
+	and associated files. Must be renamed to "MMS77320-0" in order to be used
+	as a SASI disk image.
+	See also v89rc.cpm3.
+
+v89rc.cpm3
+	Sample properties files for a system running CP/M-Plus 3.1 (with 176K RAM).

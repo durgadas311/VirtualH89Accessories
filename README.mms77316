@@ -23,6 +23,15 @@ format.c
 	Where format specifiers are things like "MMS", "Z37", "DD", "DS", "5",...
 	Invoke without any arguments to get help. Will not overwrite existing file.
 
+refmtimd.c
+	A crude program to convert IMD or TD0 images to the format used
+	by the 77316 emulation (i.e. format.c). TD0 support is limited,
+	does not support the "advanced compression" (LZSS) and there are
+	discrepancies in the foramt definition as it is not officially
+	documented and there may have been subtle changes over time.
+
+		refmtimd <imd-or-td0-file> <new-file>
+
 ==== Configuration of the VirtualH89 program ====
 
 mms77316_drive[1-8]

@@ -4,9 +4,10 @@ sasi-config.mmsdisk
 	5" MMS DD DS disk with files to help configure SASI disks and CP/M,
 	for the MMS 77320 SASI adapter.
 
-MMS77320-0
+MMS77320-0.cpm2
 	A bootable SASI disk, goes with v89rc.m320 once it is edited
-	for the directory path containing this file.
+	for the directory path containing this file. This image must be
+	renamed to "MMS77320-0" in order to be used as a SASI disk image.
 
 v89rc.m320
 	An example config/properties file for H89.jar using both MMS77316

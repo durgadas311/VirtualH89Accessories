@@ -32,6 +32,9 @@ README.mms77320
 README.cpnet
 	Information on properties and files to support the CPNetDevice pseudo-device.
 
+README.cpm3
+	Information on running CP/M Plus (v3.1)
+
 v89rc.example
 	An example config/properties file for H19.jar, H89.jar, and the
 	VirtualH89 emulator.
