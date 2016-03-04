@@ -1,0 +1,19 @@
+monitor_rom = 2732a_444_84b_mms.bin
+sw501 = 00100010
+slot_p503=MMS77318
+
+slot_p504=MMS77316
+mms77316_drive5 = FDD_5_25_DS_ST
+mms77316_drive6 = FDD_5_25_DS_ST
+mms77316_drive7 = FDD_5_25_DS_ST
+mms77316_drive8 = FDD_5_25_DS_ST
+h19_font_size=20
+h19_beep_volume = 20
+
+slot_p505=MMS77320
+mms77320_port = jp1b
+mms77320_intr = jp2b
+mms77320_dipsw = 00000000
+mms77320_dir = /path/to/sasi/images
+# copy MMS77320-0.cpm3 to above path, renaming to "MMS77320-0"
+mms77320_drive0 = XEBEC_CM5616
