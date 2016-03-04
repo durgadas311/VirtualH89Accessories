@@ -1,17 +1,23 @@
+#SOURCES = $(filter-out mms77320.cpp, $(filter-out GenericSASIDrive.cpp,$(wildcard *.cpp)))
 SOURCES = $(wildcard *.cpp)
 
 OBJECTS = $(subst .cpp,.o,$(SOURCES))
+V89NAME = v89
 
-all: v89
+all: $(V89NAME)
 
-v89: $(OBJECTS)
+$(V89NAME): $(OBJECTS)
 	$(CXX) -o $@ $(OBJECTS) -lpthread -lGL -lglut
 
-CXXFLAGS = -g -std=c++11
+CXXFLAGS = -MMD -g -O3 -std=c++11
 
 clean:
-	rm -f *.o *.orig
+	rm -f *.o
 
-astyle:
-	astyle --formatted --options=astyle.opts *.cpp *.h
-	rm -f *.orig
+clobber: clean
+	rm -f *.d $(V89NAME)
+
+uncrust:
+	uncrustify -q --no-backup -c ../uncrust.cfg *.cpp *.h
+
+-include *.d
