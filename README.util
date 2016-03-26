@@ -1,0 +1,126 @@
+convert.c
+	A sample program to convert RawFloppyImage files to SectorFloppyImage format.
+	Usage: convert <RawFloppyImage> <SectorFloppyImage>
+	The <SectorFloppyImage> file must not exist.
+
+fmtsasi.c
+	Program to create a SASI disk image, complete with partitioning and
+	"magic sector". Usage:
+
+		fmtsasi [options] <image> [format-opts]
+
+	<image> must not exist, unless "-o" or "-O" is used.
+	Options:
+		-b bsh	Use 'bsh' as a minimum. Can help make efficient DPBs.
+		-p size	(multiple allowed) Specifiy partition size.
+		-o	Overwrite existing file (Caution!)
+		-O	Overwrite only the partitioning sector. This is like
+			using fdisk and expecting to keep your data, so beware.
+		-l lat	Specify sector "latency" ordering. Not used, but
+			is put in the image header.
+	Format Options:
+		SS	Sector Size jumper, 512 bytec sectors (default 256).
+		XEBEC_ST506
+		XEBEC_ST412
+		XEBEC_CM5206
+		XEBEC_CM5410
+		XEBEC_CM5616
+		XEBEC_RO201
+		XEBEC_RO202
+		XEBEC_RO203
+		XEBEC_RO204
+			Use the specified controller/drive combination.
+			Determines disk geometry. See 'enum DriveType' and
+			'params[][]' in the source code. (TODO: add list option)
+
+format.c
+	Program to create floppy disk images (SectorFloppyImage). Usage:
+
+		format [options] <image> [format-opts]
+
+	<image> file must not exist.
+	Options:
+		-r file	Use file as data for new disk. Only useful for -R.
+		-R	Use the obsolete RawFloppyImage format.
+	Format Options:
+		5|8	Media size
+		DD|SD	Density
+		DS|SS	Sides (heads)
+		DT|ST	TPI (not applicable to 8" disks)
+		MMS|Z17|M47|Z37|Z47|Z67|Z37X|Z47X
+			Format, based on MMS FORMAT.COM specifiers.
+			Not all formats support all media, density, sides, tracks
+			combinations.
+
+DISK IMAGE FORMAT:
+	The disk image format used is a set of sectors representing the disk
+	image in the natural order. This means that the handling of the second
+	side is taken into account. For example, Z37 reads a DS disk in the
+	following order: T0S0, T0S1, T1S0, T1S1, ... (known as interlaced).
+	MMS DS formats list all tracks on side 0, then list tracks on side 1,
+	But accesses side 1 tracks in reverse order. This does create problems
+	for cpmtools (TODO: fix it).  SASI images are always interlaced.
+	After all sectors there is a 128-byte "header" (footer) that contains
+	an ASCII representation of the format. The header has different syntax
+	for floppies vs. SASI, but essentially the same data is provided.
+	Because this header is at the end, the images can be easily used
+	with cpmtools, and with getdiskdef (which reads the header) the CP/M
+	formatting can be automatically determined.
+
+refmtimd.c
+	Sample program to convert IMD or TD0 disk image files to SectorFloppyImage.
+	Does not handle "advanced compression" for TD0. Usage:
+
+		refmtimd <old-image> <new-image>
+
+	<new-image> must not exist. Auto-detects <old-image> type.
+
+cpmwrapper
+	Wrapper script for cpmtools to use 'getdiskdef' to automatically
+	determine format specification.
+
+getdiskdef.c
+	Program to examine a SectorFloppyImage or GenericSASIDrive image
+	and print the cpmtools diskdef required to access it.
+
+cpmtools.tgz
+	Modified cpmtools-2.20 with ability to use an "inline" diskdef
+	where the -f or CPMTOOLSFMT value is the actual diskdef and
+	not the format identifier. Also fixes a bug in the CP/M 3 -F
+	display. See CHANGELOG file in archive.
+
+USING INLINE CPMTOOLS DISKDEFS
+
+See cpmwrapper for an example. 'getdiskdef' will print to stdout the
+diskdef for a given image. For example:
+
+	$ getdiskdef ~/Cpm3Test/cpm3test.logdisk 
+	diskdef
+	  seclen 512
+	  tracks 80
+	  sectrk 9
+	  blocksize 2048
+	  maxdir 96
+	  skew 0
+	  boottrk 3
+	  os 3
+	end
+	$
+
+This diskdef may be used with the modified cpmtools, for example:
+
+	export CPMTOOLSFMT=$(getdiskdef ${image})
+	cpmls -F ${image}
+
+'cpmwrapper' does this and may be used for all cpmtools executables.
+
+Usage:
+
+1.	cpmwrapper <tool> [options] <image> [arguments]
+2.	ln -s cpmwrapper wls (etc. for tools that begin with 'cpm')
+	wls [options] <image> [arguments]
+
+Case 1 will exec <tool> with CPMTOOLSFMT set according to <image>.
+
+Case 2 will replace 'w' with 'cpm' and exec the tool with CPMTOOLSFMT set
+according to <image>.

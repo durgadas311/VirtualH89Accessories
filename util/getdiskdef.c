@@ -130,7 +130,21 @@ struct sasi_fdisk {
 	struct dpb dpbs[8];
 } __attribute__ ((packed));
 
-void get_sasi_diskdef(void *ptab, int partno) {
+
+float check_os(FILE *fp, struct dpb *dpb, int offset) {
+	float os = 2.2;
+	unsigned char buf[128];
+	long off = offset * 128;
+	off += dpb->restrk * dpb->spt * 128;
+	fseek(fp, off, SEEK_SET);
+	size_t rc = fread(buf, sizeof(buf), 1, fp);
+	if (rc == 1 && buf[96] == 0x21) {
+		os = 3;
+	}
+	return os;
+}
+
+void get_sasi_diskdef(FILE *fp, void *ptab, int partno) {
 	struct sasi_fdisk *fdisk = (struct sasi_fdisk *)ptab;
 if (0) {
 int x;
@@ -163,16 +177,17 @@ fdisk->dpbs[x].restrk);
 	if (nextoff == 0) {
 		nextoff = (mediaCyl * mediaHead * mediaSpt) * sxf;
 	}
+	float os = check_os(fp, &fdisk->dpbs[partno], offset);
 	printf("diskdef\n"
 		"  seclen %d\n  tracks %d\n  sectrk %d\n"
 		"  blocksize %d\n  maxdir %d\n  skew 0\n"
-		"  boottrk %d\n  offset %d\n  os 2.2\nend\n",
+		"  boottrk %d\n  offset %d\n  os %g\nend\n",
 		mediaSsz, (nextoff - offset) / fdisk->dpbs[partno].spt,
 		fdisk->dpbs[partno].spt / sxf,
 		(1 << fdisk->dpbs[partno].bsh) * 128,
 		fdisk->dpbs[partno].drm + 1,
 		fdisk->dpbs[partno].restrk,
-		offset * 128);
+		offset * 128, os);
 }
 
 enum fmts { MMS, Z17, M47, Z37, Z47, Z67, Z37X, Z47X, FMTMAX };
@@ -212,7 +227,7 @@ struct dpb floppy_dpbs[MEDMAX][FMTMAX][DENSMAX][SIDSMAX][TPISMAX] = {
 [F8][Z47X][DD][DS][ST]   = { 64, 4, 15, 0, 607, 255, 0xf0, 0x00, 64, 2 },
 };
 
-void get_floppy_diskdef() {
+void get_floppy_diskdef(FILE *fp) {
 	enum fmts fmt;
 	enum medias media = mediaSize_m == 5 ? F525 : F8;
 	enum densities dens = doubleDensity_m ? DD : SD;
@@ -236,15 +251,16 @@ void get_floppy_diskdef() {
 	}
 	struct dpb *dpb = &floppy_dpbs[media][fmt][dens][sid][tpi];
 
+	float os = check_os(fp, dpb, 0L);
 	printf("diskdef\n"
 		"  seclen %d\n  tracks %d\n  sectrk %d\n"
 		"  blocksize %d\n  maxdir %d\n  skew 0\n"
-		"  boottrk %d\n  os 2.2\nend\n",
+		"  boottrk %d\n  os %g\nend\n",
 		mediaSsz, numTracks_m * numSides_m,
 		dpb->spt / (secSize_m / 128),
 		(1 << dpb->bsh) * 128,
 		dpb->drm + 1,
-		dpb->restrk);
+		dpb->restrk, os);
 }
 
 int main(int argc, char **argv) {
@@ -276,13 +292,13 @@ int main(int argc, char **argv) {
 	}
 	if (result == 0x7f) {
 		// Floppy diskette...
-		get_floppy_diskdef();
+		get_floppy_diskdef(fp);
 	} else {
 		// SASI disk, possible partition table.
 		rewind(fp);
 		char ptab[512];
 		fread(ptab, sizeof(ptab), 1, fp);
-		get_sasi_diskdef(ptab, partno);
+		get_sasi_diskdef(fp, ptab, partno);
 	}
 	fclose(fp);
 	return 0;
