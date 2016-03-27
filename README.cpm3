@@ -9,6 +9,10 @@ mmscpm3ds8.logdisk
 	8" MMS DD DS disk with CP/M Plus installed, bootable. Contains files
 	to create SASI-ready system (boots without SASI support).
 
+cpm3cpnet.logdisk
+	5" MMS DD DS disk with CP/Net for CP/M Plus. Requires latest
+	HostFileBdos to support full CP/M 3 functionality.
+
 MMS77320-0.cpm3
 	Bootable SASI XEBEC_CM5616 drive with 3 partitions, CP/M-Plus installed
 	on first partition. Not a clean distro image: contains remnants of building
