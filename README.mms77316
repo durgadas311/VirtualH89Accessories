@@ -1,17 +1,17 @@
 Files:
 
-blank5ddds.mmsdisk
+blank5ddds.logdisk
 	A 5" DD DS blank diskette image suitable for use with the MMS77316
 	controller on the VirtualH89 emulator.
 
-invaders.mmsdisk
+invaders.logdisk
 	A 5" DD DS diskette containing a popular game for the H89.
 
-mmscpm64kds.mmsdisk
+mmscpm64kds.logdisk
 	A 5" DD DS diskette pre-configured for 64K CP/M and 8 DS ST drives on
 	the MMS77316 controller.
 
-mms-cpm-distro.mmsdisk
+mms-cpm-distro.logdisk
 	The 5" DD SS MMS CP/M 2.24 distrobution diskette. Assumes all drives
 	are SS ST (See MMS CP/M manual for instructions).
 
@@ -47,7 +47,7 @@ mms77316_disk[1-8]
 	Currently, all require the "rw" option. Additional options are aimed
 	at helping the disk image software recognize the format, and include:
 	5, 8, dd, sd, ds, ss, dt, st. See section on "Diskette Images".
-	e.g. mms77316_disk5 = mmscpm64kds.mmsdisk rw
+	e.g. mms77316_disk5 = mmscpm64kds.logdisk rw
 
 Diskette Images:
 

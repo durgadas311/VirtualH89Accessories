@@ -1,7 +1,11 @@
 Files:
 
-cpnet-dist.mmsdisk
+cpnet-dist.logdisk
 	5" MMS DD DS disk with CP/Net files and SNIOS for CPNetDevice pseudo-device.
+	See also v89rc.cpnet.
+
+cpm3cpnet.logdisk
+	5" MMS DD DS disk with CP/Net for CP/M 3 files.
 	See also v89rc.cpnet.
 
 v89rc.cpnet
@@ -12,7 +16,7 @@ v89rc.cpnet
 cpnetdevice_port
 	Port number to use for the CPNetDevice pseudo-device. If not present,
 	then no CPNetDevice device (and associated servers) are configured.
-	Note, SNIOS.ASM (and .SPR) in the cpnet-dist.mmsdisk are compiled for
+	Note, SNIOS.ASM (and .SPR) in the cpnet-dist.logdisk are compiled for
 	port 0x18.
 
 cpnetdevice_clientid
@@ -26,8 +30,24 @@ cpnetdevice_server##
 	server type. Recognized servers and property syntax are:
 
 		HostFileBdos [root-dir]
-Future:		Socket <hostname> [options...]
+    Future:	Socket <hostname> [options...]
 
 hostfilebdos_root_dir
 	Alternate method for specifying the root dir for HostFileBdos. Will be
 	used by all instances of the server, if multiple are configured (not tested).
+
+STANDARD CP/NET ON CP/M 2.2
+
+	To start CP/Net run CPNETLDR. This will add the CP/Net system components
+	on top of the running CP/M. Once added, there is no way to remove CP/Net
+	without doing a RESET and reboot.
+
+EXTENDED CP/NET ON CP/M 3.1
+
+	To start CP/Net run NDOS3. This adds an RSX that implements CP/Net.
+	The command RSXRM NDOS3 may be used to remove CP/Net. This version
+	of CP/Net does not support networked LST: or CON: devices.
+
+See cpnet_ug.html for more information on working with CP/Net. The basic
+premise is to use NETWORK to define networked drives and then use "standard"
+CP/M utilities to access networked drives the same as local drives.

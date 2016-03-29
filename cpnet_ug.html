@@ -1,0 +1,401 @@
+<html><title>Unofficial CP/NET Documentation</title>
+<body>
+<p align="center"><a name="Sec2"><b>Section 2<br>
+CP/NET User's Guide</b>
+<p>This section describes the requester commands that enable you
+to access the network and use its resources. All the requester
+commands are actually COM files that reside on disk at the
+requester.
+<p><a name="Sec2_1"><b>2.1 The LOGIN Command</b></a>
+<p>The LOGIN command allows a requester to log in to a specified
+server. A requester must log in before any resources on the server
+can be accessed. Once a requester has logged in, it is not
+necessary to log in again even though the requester might power down
+and then power up again. A requester can only be logged off a
+server by an explicit LOGOFF command issued from the requester. The
+command takes the general form:
+<p><pre>
+     LOGIN {password}{[mstrID]}
+</pre>
+<p>where <code>password</code> is an optional 8 ASCII-character password; the
+default password is PASSWORD. <code>[mstrID]</code> is an optional two-digit
+server processor ID; the default is [00]. The simplest form is
+<p><pre>
+     A&gt;LOGIN
+</pre>
+<p><a name="Sec2_2"><b>2.2 The LOGOFF Command</b></a>
+<p>The LOGOFF command allows a requester to log off from a
+specified server. Once a requester has logged off, the server
+cannot be accessed again until you issue a LOGIN command. The
+command takes the general form:
+<p><pre>
+     LOGOFF {[mstrID]}
+</pre>
+<p>where <code>[mstrID]</code> is an optional two-digit server processor ID; the
+default is [00]. The most simple form is
+<p><pre>
+     A&gt;LOGOFF
+</pre>
+<p><a name="Sec2_3"><b>2.3 The NETWORK Command</b>
+<p>The NETWORK command enables a requester to assign selected I/O
+to the network. The NETWORK command updates the requester
+Configuration table. The command takes the general form:
+<p><pre>
+     NETWORK {local dev}{=}{server dev{[srvrID]}}
+</pre>
+where <code>local dev</code is the specification of a local device such as LST:
+A: ... CON:; <code>server dev</code> is the specification of a server device such
+as A:, B: ... P: in the case of a disk device or 0, 1 ... 15 in the
+case of CON: or LST:. A missing <code>server dev</code> defaults to 0 in the
+case of CON: or LST:. <code>[srvrID]</code> is an optional two-digit hexadecimal
+server processor ID. The default is [00]. Typical assignments
+are
+<p><pre>
+     A&gt;NETWORK LST:
+
+     A&gt;NETWORK LST:=3[07]    (list dev #3 on server 07)
+     A&gt;NETWORK CON:=2        (console #2 on dflt srvr)
+     A&gt;NETWORK B:=D:[F]      (logical B: is D: on server 0F)
+</pre>
+<p>Note: when networking drive A: to a server, the file CCP.SPR must
+reside on the networked drive, or warm boot operations fail. Do not
+network a device to a nonexistent or off-line server because network
+errors could result.
+<p><a name="Sec2_4"><b>2.4 The LOCAL Command</b></a>
+<p>The LOCAL command enables a requester to reassign selected I/O
+back to local from the network. The LOCAL command updates the
+requester configuration table. The command takes the general
+form:
+<p><pre>
+     LOCAL {local dev}
+</pre>
+<p>where <code>local dev</code> is the specification of a local device such as LST:,
+A:,... CON:. The following are typical assignments:
+<p><pre>
+     A&gt;LOCAL LST:
+     A&gt;LOCAL B:
+</pre>
+<p><a name="Sec2_5"><b>2.5 The ENDLIST Command</b></a>
+<p>The ENDLIST command sends a hexadecimal 0FF to the list device,
+signaling that a list output to a networked printer is finished. If
+a spooler is resident on the server, the spool file is closed and
+enqueued for printing. If no spool file is present, the networked
+list device is freed for use by another requester.
+<p>Note: the CCP implements an endlist every time a program
+terminates, provided that CTRL-P is not active at the time. Turning
+CTRL-P off also causes an endlist.
+<p><pre>
+     A&gt;ENDLIST
+</pre>
+<p><a name="Sec2_6"><b>2.6 The DSKRESET Command</b></a>
+<p>The DSKRESET command functions exactly like the PRL that
+executes under MP/M II. DSKRESET resets the specified drive, so a
+disk can be changed. The command takes the general form:
+<p><pre>
+     DSKRESET {drive(s)}
+</pre>
+<p>where <code>drive</code> is a list of the drive names to be reset. If any of
+the drives specified cannot be reset, the console displays the
+message:
+<pre>
+     ***Reset Failed***
+</pre>
+<p>The following are typical disk resets:
+<p><pre>
+     A&gt;DSKRESET          (resets all drives)
+     A&gt;DSKRESET B:,F:    (reset drive B: and F:)
+</pre>
+<p><a name="Sec2_7"><b>2.7 The CPNETLDR Command</b></a>
+<p>The CPNETLDR command loads the requester CP/NET system.
+Specifically, the SNIOS.SPR file loads and relocates directly below
+the CP/M BDOS. The NDOS. SPR file loads and relocates directly below
+the SNIOS.
+<p>From that point on, the BIOS, BDOS, SNIOS, and NDOS remain
+resident in memory. The CPNETLDR requires no user customization.
+CPNETLDR displays an error message when loader errors are
+encountered. Listing 2-1 is a typical CPNETLDR execution.
+<p><a name="List2_1"><pre>
+     A&gt;CPNETLDR
+     CP/NET 1.2 Loader
+     ---------------
+     BIOS         F600H 0A00H
+     BDOS         E800H 0E00H
+     SNIOS   SPR  E500H 0300H
+     NDOS    SPR  DB00H 0A00H
+     TPA          0000H DB00H
+
+     CP/NET 1.2 loading complete.
+     &lt;Warm Boot&gt;
+     A&gt;
+</pre>
+<p align="center">Listing 2-1. A Typical CPNETLDR Execution</a>
+<p><a name="Sec2_8"><b>2.8 The CPNETSTS Command</b></a>
+<p>The CPNETSTS command displays the requester configuration
+table. The requester configuration table indicates the status of
+each logical device that is either local or assigned to a specific
+server on the network. Listing 2-2 shows a typical CPNETSTS
+execution.
+<p><a name="List2_2"><pre>
+     A&gt;cpnetsts
+
+     CP/NET 1.2 Status
+
+     Requester processor ID = 34H
+     Network Status Byte = 10H
+     Disk device status:
+        Drive A: = LOCAL
+        Drive B: = LOCAL
+        Drive C: = Drive A: on Network Server ID = 00H
+        Drive D: = Drive B: on Network Server ID = 00H
+        Drive E: = LOCAL
+        Drive F: = LOCAL
+        Drive G: = LOCAL
+        Drive H: = LOCAL
+        Drive I: = LOCAL
+        Drive J: = LOCAL
+        Drive K: = LOCAL
+        Drive L: = LOCAL
+        Drive M: = LOCAL
+        Drive N: = LOCAL
+        Drive O: = LOCAL
+        Drive P: = LOCAL
+     Console Device = LOCAL
+     List Device = List #0 on Network Server ID 00H
+     A&gt;
+</pre><p align="center">Listing 2-2. A Typical CPNETSTS Execution</a>
+<p><a name="Sec2_9"><b>2.9 CTRL-P</b></a>
+<p>A CTRL-P causes console output to be echoed to the list device
+until the next CTRL-P. The messages
+<p><pre>
+     CTL-P ON
+</pre><p>and
+<p><pre>
+     CTL-P OFF
+</pre><p>are displayed at the console. When the requester list device has
+been networked, the local system uses the server printer. The
+second CTRL-P causes a hexadedimal FF to be sent to the server,
+causing the server to close and print the spool file.
+<p>Note: when the requester uses the server printer with a CTRL-P
+active, the requester must issue a second CTRL-P to cause the server
+to close the spooled file and begin printing it. When the requester
+is using the server printer and has invoked it with a program such
+as PIP, the warm boot at program termination causes the required
+endlist character to be sent to the server to close and print the
+spooled file.
+<p>The program ENDLIST is not needed to terminate network list
+output in these situations.
+<p><a name="Sec2_10"><b>2.10 The MAIL Utility</b></a>
+<p>The MAIL utility allows you to send, receive, and manage
+electronic mail in a network environment. MAIL operates using file
+based function calls, so special processing by the server is not
+required. MAIL runs transparently on either server or requester, so
+only one program is required throughout the entire electronic mail
+system.
+<p>MAIL allows you to send messages to a single node, broadcast
+messages to all nodes currently logged in, or receive messages.
+<p>Messages are stored for your future examination on the
+temporary file drives of CP/NET servers. A user's mail file is
+named
+<p><pre>
+     xxMAIL.TEX
+</pre><p>where xx corresponds to your node ID. For example, if requester #5C
+wants his mail, the MAIL program accesses files named 5CMAIL.TEX on
+the temporary file drives of all the servers that node 5C currently
+has logged in. Every server in the CP/NET system might have one of
+these files, so other nodes in the network that do not have direct
+access to all of node 5C's servers can still send messages
+indirectly to it.
+<p>Menu-driven operation allows you to run the program with a
+minimum of instruction. Messages are limited in size to 1.7K bytes.
+You can enter messages into the system directly from the keyboard or
+through a preedited file. Options allow you to answer a message
+immediately while reading your mail and to delete unwanted entries.
+<p><a name="Sec2_10_1"><b>2.10.1 Menus</b></a>
+<p>Three basic menus can appear during a MAIL session:
+<p><ul>
+<li>Main Menu
+<li>Input Source Menu
+<li>Receive Response Menu
+</ul>
+<p>The Main Menu determines the basic operation to be performed. The
+Input Source Menu specifies whether input comes from a file or
+whether you enter it directly. Finally, the Receive Response Menu
+determines the disposition of messages you receive.
+<p>Enter a menu selection by typing the number associated with the
+selection, followed by a carriage return. If you type an invalid
+character or no character at all, the menu system defaults to the
+last item on the menu. You simply press the carriage return for
+common operations.
+<p><b>Main Mail Menu</b>
+<p>The main mail menu appears when you enter the mail program and
+when any of its options have completed execution. Main mail menu
+options are
+<p><pre>
+     1 - Broadcast
+     2 - Send Mail
+     3 - Receive Mail
+     4 - Exit Program
+</pre>
+<p>A simple carriage return or an invalid entry at this level return
+you to CP/M or MP/M II command level.
+<p><b>Input Source Menu</b>
+<p>The input source menu allows you to specify how message input
+is entered into the system. The input source menu has only two
+options:
+<p><pre>
+     1 - File
+     2 - Console Input
+</pre>
+<p><b>Receive Response Menu</b>
+<p>The receive response menu determines the disposition of
+messages once the user has examined them. The options are
+<p><pre>
+     1 - Stop Receiving Mail
+     2 - Answer Message
+     3 - Delete Message From Mail File
+     4 - Answer Message, Then Delete
+     5 - Re-Examine Last Message
+     6 - Get Next Message
+</pre>
+<p><a name="Sec2_10_2"><b>2.10.2 Data Entry</b></a>
+<p>In addition to the menus, MAIL prompts you for a variety of
+inputs. These inputs determine the destination of messages, input
+files, and subjects.
+<p><b>Destination ID Prompt</b>
+<p>When using the send mail option, MAIL requires an explicit
+destination to deliver the message properly. The system prompts for
+the destination. The legal value is a 2-digit hexadecimal number,
+followed by a carriage return. This value corresponds to a CP/NET
+server or requester ID value.
+<p>If you enter a value that is not a legal hexadecimal number,
+the system displays an error message, and prompts you again. The
+system does not check, however, to determine whether a requester or
+server with this ID exists on the network.
+<p><b>Subject Prompt</b>
+<p>With both the broadcast and send mail options, MAIL prompts for
+a subject header. This header is displayed as the title of the
+message and is also used for answering mail to the message that is
+sent.
+<p>When the system prompts for subject, you can enter a subject
+header from 0 to 80 bytes long, followed by a carriage return.
+<p><b>Input File Prompt</b>
+<p>If a preedited file contains the text of a message, MAIL
+prompts for the filename. You can then enter a valid CP/M file
+specification. If the file specified does not exist, the system
+displays an OPEN ERROR, and the program aborts.
+<p><b>Console Input Prompt</b>
+<p>If you choose to enter a message directly from the console,
+MAIL prompts for input. You can then simply type the message.
+Individual message lines can be up to 78 characters long. A
+message, whether input from the console or from a file, must be no
+longer than 1764 characters, about enough to fill a standard
+terminal display. Longer messages are truncated.
+<p>To terminate input, the user presses CTRL-Z, followed by a
+carriage return.
+<p><a name="Sec2_10_3"><b>2.10.3 MAIL Options</b></a>
+<p>This section explains how the CP/NET system gathers and
+receives mail and how you control the disposition of mail.
+<p><b>Broadcast</b>
+<p>The broadcast option sends a message to every node that it can
+find logged in to the CP/NET system.
+<p>MAIL works differently when it is running on a server under
+MP/M II, from the way it works when it is running on a requester
+under CP/M or CP/NOS. If a requester is broadcasting, MAIL sends
+the specified message to every server on which it is logged in as
+well as to every other requester logged in to those servers. If a
+server is broadcasting, MAIL sends the message only to every
+requester logged in to that server. A server has no means of
+initiating transactions with other servers, although it can use its
+own local MP/M II system to file mail for its own requesters.
+<p>A message cannot be broadcast to the broadcasting node.
+<p>To send a message to a given server and its associated
+requesters, MAIL must reference that server's temporary file drive
+across the network. If a requester has not networked the temporary
+file drive of a server, no messages are sent to that server.
+<P>When the broadcast option is entered, MAIL prompts you for a
+subject and message. When the operation is completed, it returns to
+the main menu.
+<p><b>Send Mail</b>
+<p>The send mail option sends a message to a specific node in the
+CP/NET system. The destination can be either a server or a
+requester. If the option is running on a requester, it first
+searches the network to see if the node specified is logged in. If
+the option finds the node is logged in, it sends the message. if
+the option does not find the node, it leaves the message on the
+first server located when MAIL searches the local configuration
+table. If a destination requester logs in later, its mail will be
+waiting for it. Mail files can accumulate that were erroneously
+sent to nonexistent requesters or to servers that the requester
+sending the message had not logged onto when it sent the message.
+<p>If the option is running on a server, mail is left on that
+server, whether the node it is being sent to is logged in or not.
+<p>Upon selecting the send mail option, MAIL prompts you for a
+destination ID, a subject, and for the message itself. MAIL then
+attempts to send the message. If MAIL cannot find a server with a
+temporary file drive to accept the message, the error NO SERVER MAIL
+DRIVE NETWORKED is displayed, and the program aborts.
+<p><b>Receive Mail</b>
+<p>The receive mail option permits you to examine messages left
+for you on all the servers on which you are currently logged in.
+After each message is displayed, you are presented with a number of
+message-handling options.
+<p>If you are running MAIL on the server, only the mail file on
+the server is accessed. However, if MAIL is being run on a
+requester, each server to which the requester is logged in is
+searched for messages.
+<p>Each message is preceded by a header that tells you what node
+the message came from and the subject of the message. The actual
+message is then displayed. As a message is being displayed, you can
+halt the display by pressing CTRL-S and resume display by pressing
+CTRL-Q. At the end of the message, bring up the receive response
+menu by pressing any key. You can then take one of the options
+listed in Table 2-1.
+<p><a name="Table2_1"><center><table border="1">
+<caption align="bottom">Table 2-1. Receive Mail Message-handling Options</caption>
+<tr><th>Option<th>Explanation
+<tr><td>Stop receiving mail<td>MAIL stops searching for more
+entries or additional files and
+returns to the main menu.
+<tr><td>Answer message<td>MAIL prompts you to type in a
+reply message. The reply message
+is sent back to the sender of
+the original message. The
+subject of the reply message is
+the characters "RE: ", followed
+by the original subject.
+<tr><td>Delete message<td>MAIL flags the message in the
+file as deleted. At the end of
+each file, or if you decide to
+stop receiving mail, deleted
+messages are physically removed
+from the file.
+<tr><td>Answer, then delete<td>This option answers the message
+message	just displayed, then deletes the
+message.
+<tr><td>Display next message<td>Messages continue to be displayed
+in this fashion, allowing the
+user to respond to each one,
+until no more can be found. The
+message "No More Messages" is
+then displayed, and the program
+returns to the main menu.
+</table></center></a>
+<p>Upon completion of any message-handling options, with the exception
+of the reexamine option, the next message is displayed.
+<p><a name="Sec2_10_4"><b>2.10.4 Error Messages</b></a>
+<p>In addition to the error messages already mentioned, CP/NET
+returns file system errors. These errors display
+<p><pre>
+     ERROR READING FILE
+     ERROR WRITING FILE
+     or
+     ERROR OPENING FILE
+</pre>
+<p>followed by a filename. After displaying such an error, MAIL
+aborts.
+<p>It is possible to get the ERROR OPENING FILE message by
+specifying a nonexistent input file for sending or broadcasting a
+message. Almost all other instances of the messages, however,
+indicate possibly serious trouble with the network, the server file
+system, or the mail-handling system.
+</body></html>
