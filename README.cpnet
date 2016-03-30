@@ -48,6 +48,122 @@ EXTENDED CP/NET ON CP/M 3.1
 	The command RSXRM NDOS3 may be used to remove CP/Net. This version
 	of CP/Net does not support networked LST: or CON: devices.
 
+	It is possible to load NDOS3 multiple times, with unpredictable
+	results. The command TPA will give an indication of how many
+	copies of NDOS3 are loaded. The default CP/M 3 TPA is 57.25K.
+	With one NDOS3 loaded it is 53.75K. It will require writing
+	a special loader to check for existing NDOS3 in order to fix this,
+	as CP/M 3 did not prevent loading multiple copies of the same RSX.
+
 See cpnet_ug.html for more information on working with CP/Net. The basic
 premise is to use NETWORK to define networked drives and then use "standard"
 CP/M utilities to access networked drives the same as local drives.
+
+Example from CP/M 3:
+
+MMS: Boot 
+
+Z89/Z90 Loader v2.241  (c) 1982,1983 Magnolia Microsystems
+
+ BNKBIOS3 SPR  EB00  1500
+ BNKBIOS3 SPR  B000  3000
+ RESBDOS3 SPR  E500  0600
+ BNKBDOS3 SPR  8200  2E00
+ 
+ 57K TPA
+
+CP/M 3.101  (c) 1982,1983 DRI and MMS
+A>c:tpa
+57.25K TPA
+
+A>c:ndos3
+NDOS3 Started.
+
+A>c:tpa
+53.75K TPA
+
+A>f:network p:=e:[0]
+
+A>dir p: [full]
+
+Scanning Directory...
+
+Sorting  Directory...
+
+Directory For Drive P:  User  0
+
+    Name     Bytes   Recs   Attributes   Prot      Update          Access    
+------------ ------ ------ ------------ ------ --------------  --------------
+
+CPNET3   ASM    32k    175 Dir RW       None   03/13/16 14:41  03/23/16 20:29
+CPNTST   ASM    16k      5 Dir RW       None   03/26/16 14:31  03/26/16 14:31
+DIR      COM    16k    114 Dir RW       None   03/25/16 09:46  03/26/16 16:17
+LOGIN    ASM    16k     22 Dir RW       None   03/11/16 21:48  03/23/16 20:30
+LOGOFF   ASM    16k     18 Dir RW       None   03/11/16 21:48  03/23/16 20:29
+NDOS     ASM    32k    188 Dir RW       None   03/20/16 13:09  03/23/16 20:30
+NDOS     PRN    64k    397 Dir RW       None   03/20/16 13:15  03/23/16 20:29
+NDOS     SPR    16k     29 Dir RW       None   03/20/16 13:15  03/23/16 20:29
+NDOS3    ASM    32k    213 Dir RW       None   03/28/16 16:10  03/28/16 16:11
+NDOS3    PRN    48k    361 Dir RW       None   03/26/16 12:55  03/26/16 12:56
+RSXRM    ASM    16k      3 Dir RW       None   03/26/16 14:30  03/26/16 14:30
+RSXTEST  ASM    16k     16 Dir RW       None   03/24/16 17:36  03/26/16 14:41
+SNIOS    ASM    16k     21 Dir RW       None   03/11/16 21:48  03/23/16 20:29
+STARTREK C      32k    218 Dir RW       None   03/12/16 17:14  03/23/16 20:29
+TPA      ASM    16k      5 Dir RW       None   03/26/16 14:31  03/27/16 13:32
+TYPECR   ASM    16k      9 Dir RW       None   03/11/16 21:48  03/23/16 20:29
+
+Press RETURN to Continue 
+Total Bytes     =    400k  Total Records =    1794  Files Found =   16
+Total 1k Blocks =    232   Used/Max Dir Entries For Drive P:   17/  64
+
+A>
+
+Looking at this same directory from Linux:
+
+$ ls -log ~/HostFileBdos/e
+total 256
+-rw-r--r-- 1 22323 Mar 13 14:41 cpnet3.asm
+-rw-r--r-- 1   640 Mar 26 14:31 cpntst.asm
+-rw-r----- 1 14559 Mar 25 09:46 dir.com
+-rw-r--r-- 1  2816 Mar 11 21:48 login.asm
+-rw-r--r-- 1  2304 Mar 11 21:48 logoff.asm
+-rw-r--r-- 1 27203 Mar 28 16:10 ndos3.asm
+-rw-r--r-- 1 46208 Mar 26 12:55 ndos3.prn
+-rw-r--r-- 1 24001 Mar 20 13:09 ndos.asm
+-rw-r--r-- 1 50816 Mar 20 13:15 ndos.prn
+-rw-r--r-- 1  3712 Mar 20 13:15 ndos.spr
+-rw-r--r-- 1   384 Mar 26 14:30 rsxrm.asm
+-rw-r--r-- 1  2048 Mar 24 17:36 rsxtest.asm
+-rw-r--r-- 1  2688 Mar 11 21:48 snios.asm
+-rw-r--r-- 1 27841 Mar 12 17:14 startrek.c
+-rw-r--r-- 1   640 Mar 26 14:31 tpa.asm
+-rw-r--r-- 1  1152 Mar 11 21:48 typecr.asm
+$
+
+Note that the HostFileBdos "server" makes some very rough computations
+of space on the "drives". Free space will always be 2M regardless of how
+much space is actually available on the host filesystem. The number of
+directory entries is also misleading, as the actual number of inodes
+available is not represented. It is possible to exceed the number of
+directory entries that CP/M believes are available.  The allocation block
+size presented to CP/M is 16k, so space used by files is exaggerated. The
+"Recs" column is really the only one that is realistic.
+
+Also, HostFileBdos will create "drives" as needed. Once the top-level
+directory is created (~/HostFileBdos/ in this example), drives "a" through
+"p" will be created automatically when they are first mapped and accessed.
+
+TODO: Create a utility, or modify PIP, to translate between Unix and CP/M
+line endings in text files. Right now, the best way is to manage line endings
+on the Unix side, using things like "sed" and "tr".  For example:
+
+Unix-to-CP/M:
+
+	$ sed -e 's/$/^M/' unix-file >~/HostFileBdos/a/cpmfile
+
+CP/M-to-Unix:
+
+	$ tr -d '\015' <~/HostFileBdos/a/cpmfile >unix-file
+
+Note: in the "sed" command, "^M" is actually the RETURN character, Ctrl-M,
+and is typically entered by pressing Ctrl-V (most shells) and then Ctrl-M.
