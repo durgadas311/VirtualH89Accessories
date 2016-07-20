@@ -19,6 +19,10 @@ H89.jar
 	A java-based H89-enabled H19 emulator. Provides a menu framework and
 	invokes the VirtualH89 emulator as a back-end process.
 
+H89jni.jar
+	A java-based H89-enabled H19 emulator that uses JNI (Java Native Interface)
+	to directly load and execute the emulator from "libV89JNI.so".
+
 README.config
 	Information on configuring environment variables and properties
 	for running the VirtualH89.
@@ -41,3 +45,16 @@ v89rc.example
 
 Makefile.VirtualH89
 	A sample Makefile for linux/Unix systems to build the VirtualH89 emulator.
+
+v89.tgz
+	MMS-Only snapshot of code, an earlier branch of Mark's VirtualH89 emulator.
+	The tarball does not specify a subdirectory, so do "mkdir xxx; cd xxx"
+	before unpacking. Use "make jni" to build the libV89JNI.so required by
+	H89jni.jar. With both the jar and .so (and .v89rc) in current directory,
+	the startup command would be:
+
+		java -jar H89jni.jar
+
+	Or to specify another v89rc file:
+
+		V89_CONFIG=/some/place/v89rc java -jar H89jni.jar
