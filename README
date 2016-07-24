@@ -58,3 +58,18 @@ v89.tgz
 	Or to specify another v89rc file:
 
 		V89_CONFIG=/some/place/v89rc java -jar H89jni.jar
+
+Peachtree.MagicWand.pdf
+	A Copy of the Magic Wand word processor manual, reprinted by
+	Zenith Data Systems.
+
+images/mw.logdisk
+	A strip-down copy of Magic Wand. Only EDIT.COM and PRINT.COM.
+
+images/c80.logdisk
+	A strip-down copy of Software Toolworks C compiler.  See CCOM.SUB
+	for how to compile.
+
+images/c80src.logdisk
+	A copy of Software Toolworks C libraries source code.
+	for how to compile.
