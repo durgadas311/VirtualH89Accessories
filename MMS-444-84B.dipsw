@@ -9,8 +9,8 @@ SW501:
     |  |  01         = Z89-47
     |  |  10         = Z89-67 or MMS 77320
     |  |  11         = MMS 77422
-    | 000 Def boot = MMS 77326 DD 5"
-    | 001          = MMS 77326 DD 8"
+    | 000 Def boot = MMS 77316 DD 5"
+    | 001          = MMS 77316 DD 8"
     | 010          = Disk Dev at 7C
     | 011          = Disk Dev at 78
     | 100          = reserved

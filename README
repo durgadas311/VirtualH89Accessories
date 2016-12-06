@@ -1,3 +1,4 @@
+See also: http://mms89.durgadas.com
 Files:
 
 2732_MMS84A_MagnoliaMMS.BIN
@@ -8,20 +9,13 @@ Files:
 	The Magnolia Microsystems version "B" of the 444-84 H89 System ROM.
 
 2732a_444_84c_ide_mms_v1.bin
-	MMS-84B monitor ROM image, modified by Norberto Collado.
+	MMS-84B monitor ROM image, modified by Norberto Collado to boot from
+	a modern IDE add-on device.
 
 H19.jar
 	A java-based H19 emulator. Use "loopback" option to run offline (keyboard
 	looped-back to screen). Without loopback, will display characters received
 	on stdin and send keystrokes to stdout.
-
-H89.jar
-	A java-based H89-enabled H19 emulator. Provides a menu framework and
-	invokes the VirtualH89 emulator as a back-end process.
-
-H89jni.jar
-	A java-based H89-enabled H19 emulator that uses JNI (Java Native Interface)
-	to directly load and execute the emulator from "libV89JNI.so".
 
 README.config
 	Information on configuring environment variables and properties
@@ -43,21 +37,17 @@ v89rc.example
 	An example config/properties file for H19.jar, H89.jar, and the
 	VirtualH89 emulator.
 
-Makefile.VirtualH89
-	A sample Makefile for linux/Unix systems to build the VirtualH89 emulator.
+MMS_CPM224UsersGuide.pdf
+	Original MMS documentation for their CP/M. Includes instructions for
+	sysgening new disks.
 
-v89.tgz
-	MMS-Only snapshot of code, an earlier branch of Mark's VirtualH89 emulator.
-	The tarball does not specify a subdirectory, so do "mkdir xxx; cd xxx"
-	before unpacking. Use "make jni" to build the libV89JNI.so required by
-	H89jni.jar. With both the jar and .so (and .v89rc) in current directory,
-	the startup command would be:
+MMS_MonitorRom84B.pdf
+	Original MMS documentation for their 84B monitor ROM.
 
-		java -jar H89jni.jar
-
-	Or to specify another v89rc file:
-
-		V89_CONFIG=/some/place/v89rc java -jar H89jni.jar
+mms-sasi-224.txt
+	Original MMS documentation for setting up SASI disk/controller/driver
+	for MMS CP/M 2.24 (CP/M Plus is easier). Using util/fmtsasi can
+	avoid many steps.
 
 Peachtree.MagicWand.pdf
 	A Copy of the Magic Wand word processor manual, reprinted by
@@ -72,4 +62,4 @@ images/c80.logdisk
 
 images/c80src.logdisk
 	A copy of Software Toolworks C libraries source code.
-	for how to compile.
+	See *.SUB for how to compile.

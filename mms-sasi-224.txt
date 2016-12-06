@@ -1,0 +1,367 @@
+
+(c) Magnolia Microsystems 1982		Revised 12/9/82
+
+Instructions for creating a new SASI module
+-------------------------------------------
+
+The required structure of a SASI module is as follows:
+
+	DRIVER MODULE (D320xxxx.HEX - direct result of assembling D320xxxx.ASM)
+	Controller text string
+	Drive text string for l.u.n. 0
+	Initialization data block for l.u.n. 0 (IDATxxxx.HEX)
+
+Following this may be drive text strings and initialization data blocks for
+up to three more logical units. In most cases only one logical unit will be
+used. All the modules on this disk are set up for one logical unit. Thus, the
+controller and drive text strings for a module are contained in one file called
+M320xxxx.TXT.
+
+Once the individual parts have been created, they may concatenated using PIP to
+create a single file with the above structure and the name M320xxxx.HEX:
+
+	PIP M320xxxx.HEX=D320xxxx.HEX,M320xxxx.TXT,IDATxxxx.HEX
+
+Step 1: Create new text strings
+-------------------------------
+
+The format for a controller text string is:
+
+	;"any text string describing the controller"
+
+The format for a drive text string is:
+
+	;n"any text string describing logical unit n"
+
+where n is a logical unit number from 0 to 3.
+
+Note the use of the semi-colon and the double quote marks in the text
+strings. These are required characters.
+
+
+Step 2: Create new Initialization Data Blocks
+---------------------------------------------
+
+Each logical unit referenced by the new module (except for floppies) must have
+its own initialization data block. This block of data gets written to sector 0
+of the disk during a run of INITSASI and is accessed by the operating system
+on the first select of a partition on that disk after cold boot (after warm
+boot for removable hard disks). The data block contains hardware dependent
+code, partitioning information and a boot loader routine (used only when
+booting from the disk).
+
+To create a new initialization data block, you may want to alter an already
+existing IDATxxxx.ASM file, or start from scratch. Here is a sample
+initialization data block (IDATS205.ASM) :
+
+	ORG	2280H
+
+	JMP	2480H
+
+	DB	0			; DRIVE/CONTROLLER CODE
+	DB	1			; CONTROL BYTE
+	DB	0,153,4,0,128,0,64,11	; DRIVE CHARACTERISTIC DATA
+	DB	0,0,0,0,0,0		; ASSIGN DRIVE TYPE COMMAND
+	DB	2			; NUMBER OF PARTITIONS
+
+	DB	0,0,0CH 		; PARTITION ADDRESS TABLE
+	DB	0,51H,4CH
+	DB	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+
+					; DISK PARAMETER BLOCKS
+	DW	64			; SPT
+	DB	5,31,1			; BSH,BSM,EXM
+	DW	646-1,512-1		; DSM-1,DRM-1
+	DB	11110000B,0		; ALV0,ALV1
+	DW	0,2			; CKS,OFF
+	DB	00000010B,10000000B,0	; MODE BYTES
+	DB	0FFH,0FFH,0FFH		; MODE MASKS
+
+	DW	64
+	DB	5,31,1
+	DW	646-1,512-1
+	DB	11110000B,0
+	DW	0,2
+	DB	00000010B,10000000B,0
+	DB	0FFH,0FFH,0FFH
+
+	REPT	20+147
+	DB	0
+	ENDM
+
+********** BOOT MODULE LOADER ROUTINE **********
+
+
+The first two lines (ORG 2280H and JMP 2480H) must never be changed. 
+
+DRIVE/CONTROLLER CODE:
+The format of the Drive/Controller code byte is as follows:
+
+	bits 5-7 : Controller code
+	bits 0-4 : Drive code
+
+The following Drive/Controller combinations are supported by INITSASI:
+
+	Controller   Drive    Drive/Controller code 
+	---------    -----    ---------------------
+	XEBEC	     ST-506   00000000
+	XEBEC	     CM5619   00000001
+	XEBEC	     CM5412   00000010
+	XEBEC	     MS-10    00000011
+	XEBEC	     other    00011111
+	DP-900	     DP-100   00100000
+	MRX 101D     MRX 101  01000000
+	other	     other    11111111
+
+If your particular combination is not supported by INITSASI, you can still
+use INITSASI to configure the drive. The only penalties will be that INITSASI
+will not display expected format and disk test times, and will choose a
+default interleave factor when formatting the drive. If your subsystem is not
+listed above, you should use a value for Drive/Controller code different from
+those listed (such as 11111111).
+
+CONTROL BYTE:
+The control byte for your controller can be found in your controller manual. It
+may vary from drive to drive. In most cases it will be zero.
+
+DRIVE CHARACTERISTIC DATA:
+The eight bytes of Drive Characteristic Data are only used by the XEBEC
+controller, and may be found in appendix A of the XEBEC S1410 Owner's Manual.
+The first three bytes, though, are used by INITSASI to determine the number of
+tracks on the drive for track verification, and should be set correctly no
+matter what controller is being used. The first two bytes are the number of
+cylinders on the drive (high order byte first) and the third byte is the
+number of heads.
+
+ASSIGN DRIVE TYPE COMMAND:
+The six bytes of Assign Drive Type Command are used only by the DP-900
+controller, and may be found in the Controller Specification Manual for the
+DP-900 controller. If your controller is other than the DP-900, these bytes
+must all be zero.
+
+NUMBER OF PARTITIONS:
+The next byte is the number of partitions on this logical unit. Any value from
+0 to 8 is allowed.
+
+PARTITION ADDRESS TABLE:
+The next 27 bytes are the partition address table, with three bytes for each
+partition indicating the starting sector on the drive for the partition. The
+partition addresses for unused partitions may be set to zeroes. The partition
+address for partition 0 must 0,0,0CH. The rest of the addresses must be
+calculated after the disk parameter blocks have been set up.
+
+DISK PARAMETER BLOCKS:
+The next 189 bytes are the disk parameter blocks, consisting of 21 bytes for
+each partition. See the Digital Research CP/M 2.2 Alteration Guide for
+information on setting up disk parameter blocks. The blocks can be set up
+however you want (providing, of course, that you do not allocate more space
+than your drive contains) with the exception that the first entry, sectors
+per track, must be 64. This has nothing to do with the number of physical
+sectors per track on your drive.
+
+MODE BYTES AND MODE MASKS:
+The last six bytes of each disk parameter block are the mode bytes and mode
+masks. The important bits in the mode bytes are bits 0 and 1 of the first mode
+byte, which indicate the actual physical sector size of your drive, and bit 7
+of the second mode byte, which tells the MODE program to ignore the mode bytes.
+The mode mask bits must all be set, preventing any program from altering the
+mode bytes.
+
+CALCULATING PARTITION ADDRESSES:
+Using the information in the disk parameter block for a partition, the
+partition address can be calculated. Using the Alteration Guide again,
+determine the block size, and then the number of sectors per block (SPB). SPB
+can be determined knowing that there are eight sectors in 1K. Now calculate the
+total sectors on the partition using this equation:
+
+	Total Sectors = SPT * OFF + SPB * DSM
+
+Having calculated the total sectors on partition 0, add this to the starting
+address of partition 0 to get the starting address of partition 1, and so on
+until you have a starting address for each partition. 
+
+BOOT LOADER ROUTINE:
+The last part of the initialization data block is the boot loader routine.
+If you are creating a new data block, the boot loader source code, L320.ASM
+must be included here.
+
+ASSEMBLE THE FILE:
+The final step of creating the initialization data block is to assemble the
+code using MAC.
+
+
+Step 3: Create a new driver module:
+----------------------------------
+
+The driver module has no controller specific code in it. The parameters that
+must change are related to number of partitions, partition size, and whether
+the disk is fixed or removable. In version 2.243 and later, there is nothing
+in the driver module specific to partition size. These modules are named with
+two characters only: F or R for fixed or removable, and the number of
+partitions.
+
+The best way to create a new driver module is to edit an already existing one.
+Find the section, near the beginning if the D320xxx.ASM file, that appears as
+follows:
+
+
+***************************************************
+** OVERLAY MODULE INFORMATION ON BIOS
+***************************************************
+
+	ORG	PATCH
+	DS	51		; BIOS JUMP TABLE
+
+DISK$STAT	DB	0
+
+		DS	8
+
+DRIV0	EQU	50
+MIXER:	DB	50,51		; PHYSICAL DRIVES 50,51
+	DS	14		; LOGICAL-PHYSICAL DRIVE TABLE
+
+DRIVE$BASE:
+	DB	50,52		; DRIVE MODULE BASE TABLE
+	DW	MBASE
+	DS	28
+
+CBIOS:	DS	3
+
+NEWBAS	DS	2
+NEWDSK	DS	1
+NEWTRK	DS	1
+NEWSEC	DS	1
+HRDTRK	DS	2
+DMAA	DS	2
+
+***************************************************
+
+
+The values to be altered here are MIXER and DRIVE$BASE.
+
+MIXER:
+Up to nine numbers starting with 50 may be entered here, one for each partition
+or floppy disk to be accessed by this module. The following DS statement must
+be set so that 16 bytes all together are defined for MIXER.
+
+DRIVE$BASE:
+The first byte must be 50. The second byte must be the highest drive number you
+assigned in MIXER plus 1.
+
+The next section of code in the driver module appears as follows:
+
+
+***************************************************
+** START OF RELOCATABLE DISK I/O MODULE
+*************************************************** 
+
+	ORG	MBASE		; START OF MODULE
+
+	JMP	SEL$SASI
+	JMP	READ$SASI
+	JMP	WRITE$SASI
+
+;	TEXT
+	DB	'77320 SASI Interface (2 partitions) v2.24'
+	DW	VERS,'$'
+
+
+DPH0:	DW	0,0,0,0,DIRBUF,DPB0,CSV0,ALV0
+DPH1:	DW	0,0,0,0,DIRBUF,DPB1,CSV1,ALV1
+DPH2:	DW	0,0,0,0,DIRBUF,DPB2,CSV2,ALV2
+DPH3:	DW	0,0,0,0,DIRBUF,DPB3,CSV3,ALV3
+DPH4:	DW	0,0,0,0,DIRBUF,DPB4,CSV4,ALV4
+DPH5:	DW	0,0,0,0,DIRBUF,DPB5,CSV5,ALV5
+DPH6:	DW	0,0,0,0,DIRBUF,DPB6,CSV6,ALV6
+DPH7:	DW	0,0,0,0,DIRBUF,DPB7,CSV7,ALV7
+DPH8:	DW	0,0,0,0,DIRBUF,DPB8,CSV8,ALV8
+
+CNUM:	DB	0		; CONTROLLER NUMBER 0
+
+;	SECTOR DEFINITION/TRANSLATION TABLE
+;		--ADDRESS--,   FLAG BYTE
+DDEFTBL:DB	0,   0,   0,   0
+	DB	0,   0,   0,   1
+	DB	0,   0,   0,   0
+	DB	0,   0,   0,   0
+	DB	0,   0,   0,   0
+	DB	0,   0,   0,   0
+	DB	0,   0,   0,   0
+	DB	0,   0,   0,   0
+	DB	0,   0,   0,   0
+
+
+The TEXT string may be changed as desired, providing that the number of bytes
+in the string is not altered. Otherwise, the relocation bit map at the end of
+the module must be changed
+
+DDEFTBL:
+There are four bytes here for each partition. The first three bytes are for the
+partition address, to be extracted from the initialization block on the first
+select of the partition. The first three bits of the first byte, though, must
+indicate the logical unit on which the partition is located. This will be zero
+in most cases. The fourth byte for each partition is a flag byte, defined as
+follows:
+
+	BIT 7 = INITIALIZATION FLAG -- always 0
+	BIT 6 = FLOPPY DISK FLAG -- 1 for floppy, 0 for hard
+	BIT 5 = REMOVABLE MEDIA FLAG -- 1 for removable, 0 for fixed
+	BIT 4 (SPARE)
+	BITS 0-3 = PARTITION NUMBER -- relative to logical unit
+
+
+Now go to the end of the driver module, to find code that looks like this:
+
+********************************************************
+** BUFFERS
+********************************************************
+	ORG	BUFFER
+HSTBUF: DS	512
+CSV0:	DS	0
+ALV0:	DS	81
+CSV1:	DS	0
+ALV1:	DS	81
+CSV2:	DS	0
+ALV2:	DS	0
+CSV3:	DS	0
+ALV3:	DS	0
+CSV4:	DS	0
+ALV4:	DS	0
+CSV5:	DS	0
+ALV5:	DS	0
+CSV6:	DS	0
+ALV6:	DS	0
+CSV7:	DS	0
+ALV7:	DS	0
+CSV8:	DS	0
+ALV8:	DS	0
+**********************************************************
+BUFLEN	EQU	$-BUFFER
+	END
+
+
+BUFFER SIZES:
+Define one ALV buffer and one CSV buffer for each partition. If the media is
+removable, the space defined for the CSV buffer for any partition must be the
+same (or larger) than the value defined for CKS when you were setting up disk
+parameter blocks. If the media is fixed, the CSV buffers should have a length
+of 0. The length of the ALV buffer for a partition is determined by dividing
+the DSM value for that partition (again from the disk parameter block) by 8. In
+version 2.243 or later, all ALV buffers are of length 256, and CSV buffers for
+removable media are of length 128.
+
+ASSEMBLE THE FILE:
+The last step in creating a new driver module is to assemble the file using
+MAC.
+
+
+Step 4: Put all the pieces together:
+-----------------------------------
+
+All the files just created may concatenated using PIP to create one file of
+the structure described at the beginning of this document. Now this file can
+be used to initialize the drive using INITSASI. Either this file or the driver
+module, D320xxxx.HEX, can be used to link the SASI subsystem into a MOVCPM
+file. Note that LINK ignores the text strings and the initialization data
+block.
+
